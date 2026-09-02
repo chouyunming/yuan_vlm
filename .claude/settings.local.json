@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -v -E '\\\\.pyc$|__pycache__')",
+      "Bash(git -C ~/drone_ws status)",
+      "Bash(colcon build *)",
+      "Bash(python3 *)",
+      "Bash(echo \"exit=$?\")",
+      "Bash(sudo docker ps)",
+      "Bash(sudo docker images)",
+      "Bash(sudo -n docker ps)",
+      "Bash(timeout 8 curl -sI https://ghcr.io)",
+      "Bash(sudo -n docker images)",
+      "Read(//usr/local/cuda-12.6/bin/**)",
+      "Bash(/usr/local/cuda/bin/nvcc --version)",
+      "Bash(dpkg -l)",
+      "Bash(awk '{print $2,$3}')"
+    ]
+  }
+}

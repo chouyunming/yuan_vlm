@@ -1,0 +1,15 @@
+# colcon build artifacts
+build/
+install/
+
+# data (large / machine-specific)
+log/
+models/
+videos/
+videos_backup/
+
+# python
+__pycache__/
+
+# .sh
+run_all_videos.sh
