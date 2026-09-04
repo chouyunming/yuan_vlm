@@ -5,7 +5,7 @@
 # Stop: Ctrl-C, or  pkill -f 'build-cuda/bin/llama-server'
 set -e
 
-ROOT=/home/anderson/yuan_vlm
+ROOT=~/yuan_vlm
 BIN_DIR="$ROOT/build/llama.cpp/build-cuda/bin"
 
 if [ ! -x "$BIN_DIR/llama-server" ]; then
