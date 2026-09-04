@@ -8,7 +8,7 @@ timings, writes per-frame artifacts, and delegates the run summary to
 and ``VlmNode`` (ROS image topic) both subclass it.
 
 ``VlmNode`` adds the rclpy I/O: ``--image-topic TOPIC`` subscribes to a live
-image topic (e.g. an OAK camera on ``front_image/compressed``) and infers the
+image topic (e.g. an OAK camera on ``front_camera/image/compressed``) and infers the
 freshest frame each cycle, dropping frames that arrive mid-inference. Pass
 ``--video foo.MOV`` to run as a MOCK CAMERA that republishes a clip onto
 ``--image-topic``. Each decided step is published on ``/vlm/result``
@@ -496,7 +496,7 @@ def _parse_args(argv):
         description='ROS VLM (Gemma) path: live image-topic subscription '
                     '(optionally fed by a --video mock camera).')
     add_common_args(p)
-    p.add_argument('--image-topic', default='front_image/compressed',
+    p.add_argument('--image-topic', default='front_camera/image/compressed',
                    help='CompressedImage topic to subscribe to (live OAK or '
                         'mock camera)')
     p.add_argument('--video', default=None,
@@ -505,9 +505,9 @@ def _parse_args(argv):
     p.add_argument('--frame-wait-timeout', type=float, default=15.0,
                    help='warn if no new frame arrives on the topic for this long')
     cfg = p.parse_args(argv)
-    # Topic mode has no natural frame count; default to 100 inferred.
+    # Topic mode has no natural frame count; default to 1000 inferred.
     if cfg.num_frames is None:
-        cfg.num_frames = 100
+        cfg.num_frames = 1000
     cfg.image = None    # this node never runs the ROS-free single-image path
     return cfg
 

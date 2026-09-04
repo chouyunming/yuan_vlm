@@ -110,7 +110,7 @@ python -m drone_vlm.vlm_test --model e4b --image ~/yuan_vlm/frames/frame_000282.
 
 # vlm_node — ROS path (source ROS + the workspace first)
 source /opt/ros/humble/setup.bash && source ~/yuan_vlm/install/setup.bash
-ros2 run drone_vlm vlm_node --model e4b --image-topic front_image/compressed  # live OAK
+ros2 run drone_vlm vlm_node --model e4b --image-topic front_camera/image/compressed  # live OAK
 ros2 run drone_vlm vlm_node --model e4b --video ~/yuan_vlm/videos/mission_record_forest.mp4  # mock camera
 ```
 
