@@ -13,3 +13,9 @@ __pycache__/
 
 # .sh
 run_all_videos.sh
+start_e4b_server_docker.sh
+
+# other
+fonts/
+viz_arrow.py
+mp4.py

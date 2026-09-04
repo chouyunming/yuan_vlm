@@ -434,13 +434,15 @@ class VlmNode(VlmBenchmark):
             cap.release()
 
     def _publish_step(self, obj: dict, stem: str) -> None:
-        """Publish {command_id, suggested_move} on /vlm/result as a JSON String.
-        command_id strictly increases so a subscriber can order/deduplicate."""
+        """Publish {command_id, suggested_move, obstacle_exists} on /vlm/result
+        as a JSON String. command_id strictly increases so a subscriber can
+        order/deduplicate."""
         self._command_id += 1
         msg = String()
         msg.data = json.dumps(
             {'command_id': self._command_id,
-             'suggested_move': str(obj.get('suggested_move', ''))})
+             'suggested_move': str(obj.get('suggested_move', '')),
+             'obstacle_exists': bool(obj.get('obstacle_exists', False))})
         self._result_pub.publish(msg)
 
     # -------------------------------------------------------------- run loop
