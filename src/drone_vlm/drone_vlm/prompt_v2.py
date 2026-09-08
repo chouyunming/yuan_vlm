@@ -90,7 +90,8 @@ Split the camera image into a 3x3 grid and name the cells:
   TOP   top_left      top_center      top_right      (far / high up)
   MID   middle_left   middle_center   middle_right   (straight ahead)
   BOT   bottom_left   bottom_center   bottom_right   (near / low / close)
-Find the NEAREST / most dangerous obstacle (tree, branch, wall, pole, ...), decide which ONE cell it mainly occupies, and report that cell.
+Find the NEAREST / most dangerous obstacle, decide which ONE cell it mainly occupies, and report that cell.
+Localize by the part the drone would actually HIT — the trunk / base / nearest solid mass, low in the frame — NOT by a wide canopy or overhanging branches up high. A tree whose trunk is in the left column is middle_left even if its canopy spreads across the top.
 FIELDS (report exactly these):
   scene            short free-text description of the view.
   obstacle_exists  true if any obstacle is visible, else false.
@@ -113,8 +114,8 @@ HARD RULES — satisfy ALL. Pick exactly ONE value per field; never output a lis
   R9.  top_center -> "medium".
   R10. any CORNER cell or "none" -> "low".
   R11. open_side is "left"/"right" IF AND ONLY IF risk="high" (required there, since R5 steers toward it); it is "none" whenever risk is not "high".
-Reply with ONLY this JSON object (well-formed, rule-satisfying example):
-{{"scene":"large tree blocking the path, grass open to the left","obstacle_exists":true,"grid_cell":"middle_center","obstacle_type":"tree","risk":"high","suggested_move":"left","open_side":"left"}}
+Reply with ONLY this JSON object (well-formed, rule-satisfying example — a tree trunk in the LEFT column, so steer RIGHT):
+{{"scene":"tree trunk on the left, open grass to the right","obstacle_exists":true,"grid_cell":"middle_left","obstacle_type":"tree","risk":"high","suggested_move":"right","open_side":"right"}}
 """
 
 
