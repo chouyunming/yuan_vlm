@@ -1,0 +1,66 @@
+Run:
+python3 tools/vlm_batch_select.py --frame-dir log/e4b_20260902_105215 --start-frame 600
+
+That prints a "pending_frames" list of image paths still needing a JSON
+output in {out_dir}.
+
+For EACH path in "pending_frames", dispatch one independent Agent (fresh
+subagent, no shared memory) with the self-contained prompt below, filling
+in <FRAME_PATH> and <OUT_PATH>. Do this one frame at a time, or in small
+parallel batches — never let one agent's reasoning, scene description, or
+JSON be visible to another. Each frame must be judged strictly from its own
+pixels: no carrying over a decision because an earlier frame "looked the
+same." Even visually near-identical frames (e.g. a stationary hover) can
+have small differences in obstacle distance/position, so do not copy a
+previous frame's JSON output verbatim — re-derive it from the current image
+every time.
+
+--- Agent prompt (self-contained, do not add prior-frame context) ---
+
+Read the image at <FRAME_PATH>. You have no information about any other
+frame, prior output, or session history — judge only what is visible in
+this single image.
+
+You are the obstacle-avoidance decider for a drone with ONE forward camera.
+Reply with exactly ONE JSON object and NOTHING else.
+Split the camera image into a 3x3 grid and name the cells:
+        LEFT          CENTER          RIGHT
+  TOP   top_left      top_center      top_right      (far / high up)
+  MID   middle_left   middle_center   middle_right   (straight ahead)
+  BOT   bottom_left   bottom_center   bottom_right   (near / low / close)
+Find the NEAREST / most dangerous obstacle (tree, branch, wall, pole, ...), decide which ONE cell it mainly occupies, and report that cell.
+FIELDS (report exactly these):
+  scene            short free-text description of the view.
+  obstacle_exists  true if any obstacle is visible, else false.
+  grid_cell        the ONE cell holding the nearest obstacle, or "none" ONLY when obstacle_exists is false.
+  obstacle_type    "tree"|"branch"|"unknown"|"none" ("none" ONLY when obstacle_exists is false).
+  risk             collision risk for going forward: "low"|"medium"|"high".
+  suggested_move   "left"|"right"|"forward". left/right=steer that way; forward=keep straight.
+  open_side        escape direction: "left" or "right" WHENEVER risk="high" (the side with MORE free space); "none" whenever risk is not "high".
+HARD RULES — satisfy ALL. Pick exactly ONE value per field; never output a list or an "a|b|c" string.
+  R1. obstacle_exists false -> grid_cell="none", obstacle_type="none", risk="low", suggested_move="forward", open_side="none".
+  R2. obstacle_exists true  -> grid_cell!="none" AND obstacle_type!="none".
+  Grid cell -> suggested_move (an obstacle in the flight line forces a turn; far/high and corners keep going):
+  R3. middle_left -> "right".
+  R4. middle_right -> "left".
+  R5. middle_center or bottom_center -> open_side ("left"/"right"): path blocked, escape sideways.
+  R6. top_center -> "forward".
+  R7. any CORNER cell or "none" -> "forward".
+  Grid cell -> risk:
+  R8.  any MIDDLE-ROW cell (middle_left/middle_center/middle_right) or bottom_center -> "high".
+  R9.  top_center -> "medium".
+  R10. any CORNER cell or "none" -> "low".
+  R11. open_side is "left"/"right" IF AND ONLY IF risk="high" (required there, since R5 steers toward it); it is "none" whenever risk is not "high".
+Reply with ONLY this JSON object (well-formed, rule-satisfying example):
+{{"scene":"large tree blocking the path, grass open to the left","obstacle_exists":true,"grid_cell":"middle_center","obstacle_type":"tree","risk":"high","suggested_move":"left","open_side":"left"}}
+
+Write that JSON object, verbatim and unmodified, to <OUT_PATH> using the
+Write tool (not a Bash heredoc/cat command — the JSON's braces and quotes
+trip the shell sandbox's permission checks and force a manual approval).
+To check whether an output file already exists, use the Read tool on that
+path rather than a Bash `test -f` / `for` loop, for the same reason.
+
+--- end Agent prompt ---
+
+After all frames in the batch are written, report the next_start_frame
+value from the tool's output so the next session knows where to resume.
