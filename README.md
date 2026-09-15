@@ -125,6 +125,6 @@ summary.json / summary.txt      # p50/p95/mean latency + tegrastats aggregates
   `vlm_test --video` (off-disk) or `vlm_node --video` (mock camera that republishes a
   clip onto the topic at its fps).
 - `vlm_node` publishes each decided step on **`/vlm/result`** as JSON
-  `{"command_id": N, "suggested_move": "left|right|forward"}` (fire-and-forget; the
+  `{"command_id": N, "obstacle_exists": true|false, "suggested_move": "left|right|forward"}` (fire-and-forget; the
   flight-controller handshake is deferred to a later redesign).
 - One model per server run; switch by restarting with the other `start_*.sh`.
